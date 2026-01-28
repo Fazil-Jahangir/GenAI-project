@@ -1,41 +1,37 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    IMAGE_NAME = "genai-resume-api"
-    CONTAINER_NAME = "genai-resume-api"
-    APP_PORT = "8000"
-    OLLAMA_HOST = "http://host.docker.internal:11434"
-  }
+    stages {
 
-  stages {
-    stage("Checkout") {
-      steps { checkout scm }
+        stage('Clone Repo') {
+            steps {
+                git branch: 'master',
+                    url: 'https://github.com/Fazil-Jahangir/GenAI-project.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t genai-app .'
+            }
+        }
+
+        stage('Stop Old Container') {
+            steps {
+                sh 'docker rm -f genai-container || true'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh '''
+                docker run -d \
+                --name genai-container \
+                --env-file .env \
+                -p 8000:8000 \
+                genai-app
+                '''
+            }
+        }
     }
-
-    stage("Build") {
-      steps {
-        sh """
-          docker build -t ${IMAGE_NAME}:latest .
-        """
-      }
-    }
-
-    stage("Deploy") {
-      steps {
-        sh """
-          docker rm -f ${CONTAINER_NAME} || true
-
-          docker run -d --restart unless-stopped \\
-            --name ${CONTAINER_NAME} \\
-            -p ${APP_PORT}:8000 \\
-            --add-host=host.docker.internal:host-gateway \\
-            -e OLLAMA_HOST=${OLLAMA_HOST} \\
-            ${IMAGE_NAME}:latest
-
-          docker ps | grep ${CONTAINER_NAME}
-        """
-      }
-    }
-  }
 }

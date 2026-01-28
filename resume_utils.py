@@ -1,10 +1,8 @@
-import PyPDF2
+from PyPDF2 import PdfReader
 
 def extract_text(file):
-    reader = PyPDF2.PdfReader(file.file)
+    reader = PdfReader(file.file)
     text = ""
     for page in reader.pages:
         text += page.extract_text()
-    return text
-    
-
+        return text

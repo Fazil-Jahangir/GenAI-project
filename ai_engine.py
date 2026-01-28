@@ -1,49 +1,23 @@
 import os
-import ollama
 
-OLLAMA_HOST = os.getenv("OLLAMA_HOST")  
+from openai import OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+def analyze_resume(resume_text,job_desc):
+    prompt = f"""
+    You are a resume expert.
 
-def analyze_resume(resume_text, job_desc):
-    prompt = f"""You are a resume expert...
+    Resume Content:
+    {resume_text}
 
-Resume Content:
-{resume_text}
+    Job Description:
+    {job_desc}
 
-Job Description:
-{job_desc}
+    Provide:
+    1.Match percentage
+    2.Missing skills
+    3. Resume improvemenyt tips
+    """
 
-Provide:
-1. Match percentage
-2. Missing skills
-3. Resume improvement tips
-"""
-    client = ollama.Client(host=OLLAMA_HOST) if OLLAMA_HOST else ollama
-    response = client.chat(model="llama3", messages=[{"role": "user", "content": prompt}])
-    return response["message"]["content"]
-
-
-
-# import ollama
-
-# def analyze_resume(resume_text, job_desc):
-#     prompt = f"""
-#     You are a resume expert.
-    
-#     Resume Content:
-#     {resume_text}
-
-#     Job Description:
-#     {job_desc}
-
-#     Provide:
-#     1. Match percentage
-#     2. Missing skills
-#     3. Resume improvement tips
-#     """
-
-#     response = ollama.chat(
-#         model="llama3",
-#         messages=[{"role": "user", "content": prompt}]
-#     )
-
-#     return response["message"]["content"]
+    response = client.chat.completions.create(model="gpt-5.2",
+                                              messages=[{"role":"user","content":prompt}])
+    return response.choices[0].message.content
