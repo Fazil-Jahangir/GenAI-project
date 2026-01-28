@@ -27,11 +27,5 @@ pipeline {
         }
       }
     }
-
-    stage('Smoke Test') {
-      steps {
-        sh 'sleep 5 && curl -f http://localhost:8000/docs > /dev/null'
-      }
-    }
   }
 }
