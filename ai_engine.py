@@ -1,7 +1,11 @@
 import os
-
+from dotenv import load_dotenv
 from openai import OpenAI
+
+load_dotenv()   # <-- loads .env file
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 def analyze_resume(resume_text,job_desc):
     prompt = f"""
     You are a resume expert.
